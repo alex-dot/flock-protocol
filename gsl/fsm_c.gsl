@@ -1,0 +1,434 @@
+.template 0
+#   fsm_c.gsl
+#
+#   Generates a finite state machine engine in C
+#
+#   It is derived from the example script at
+#   https://github.com/imatix/gsl/blob/master/examples/fsm_c.gsl
+#
+#   This Source Code Form is subject to the terms of the Mozilla Public
+#   License, v. 2.0. If a copy of the MPL was not distributed with this
+#   file, You can obtain one at http://mozilla.org/MPL/2.0/.
+#
+class.title ?= "flock"
+
+outputdir = "."
+if defined (switches.arg1)
+    outputdir = "$(switches.arg1)"
+endif
+
+#   Resolve includes
+
+for class.include
+    if defined (include.filename)
+        my.include_file = class.load_file (filename)
+        if defined (my.include_file)
+            move my.include_file after include
+        else
+            echo "E: error loading include file: $(filename): $(xml.error?)"
+        endif
+    else
+        echo "E: required attribute 'filename' not defined"
+    endif
+endfor
+
+#   Lowercase state/event/action names
+
+for class.state
+    state.name = "$(name:c)"
+    state.status = "$(state.current_status%d)"
+    state.comma = last()?? ""? ","
+    for event
+        if name <> "*"
+            event.name = "$(name:c)"
+        endif
+        event.status = "$(event.received_status%d)"
+        if defined (event.next)
+            event.next = "$(next:c)"
+            if count (class.state, next = "$(name:c)") = 0
+                abort "Next state $(next) is not defined"
+            endif
+        endif
+        for action
+            action.name = "$(name:c)"
+            action.status = "$(action.next_status%d)"
+        endfor
+    endfor
+
+    #   Collect all events and actions at class level
+    for event where name <> "*"
+        #   Copy event to class if not yet defined there
+        if count (class.event, name = -1.name) = 0
+            copy event to class
+        endif
+    endfor
+    for event
+        for action where count (class.action, name = -1.name) = 0
+            copy action to class
+        endfor
+    endfor
+    for event where count (class.code, status = -1.status) = 0
+        copy event to class as code
+    endfor
+endfor
+
+sort class.code by conv.number(status)
+
+#   Process super states
+
+function resolve_inheritance (state)
+    if defined (my.state.inherit)
+        my.state.inherit = "$(my.state.inherit:c)"
+        for class.state as superstate where name = my.state.inherit
+            resolve_inheritance (superstate)
+            for event where count (my.state.event, name = -1.name) = 0
+                copy event to my.state
+            endfor
+        else
+            echo "E: superstate $(inherit) isn't defined"
+        endfor
+    endif
+endfunction
+
+for class.state
+    resolve_inheritance (state)
+endfor
+
+#   Collect prototypes that we need
+for class.action
+    new class.prototype
+        prototype.name = "$(action.name)"
+        prototype.exists = 0
+        prototype.args = "$(class.name)_t *self, status_t *status"
+    endnew
+endfor
+
+.endtemplate
+.output "$(outputdir)/$(class.name).h"
+/**
+ * \\file       $(class.name) - $(class.title:) state machine engine
+ * \\version    $(class.version)
+ * \\brief      Provides a finite state machine API.  
+ * \\author     Alexander Herr
+ * \\date       2016
+ * \\copyright  GNU Public License v3 or higher. 
+ *
+ *  ** WARNING *************************************************************
+ *  THIS SOURCE FILE IS 100% GENERATED. If you edit this file, you will lose
+ *  your changes at the next build cycle. This is great for temporary printf
+ *  statements. DO NOT MAKE ANY CHANGES YOU WISH TO KEEP. The correct places
+ *  for commits are:
+ *
+ *   * The XML model used for this code generation: $(filename), or
+ *   * The code generation script that built this file: $(script)
+ *  ************************************************************************
+ */
+
+#ifndef FLOCK_FSM_H_
+#define FLOCK_FSM_H_
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+//  ---------------------------------------------------------------------------
+//  State machine constants
+
+typedef enum {
+    NULL_state = 0,
+.for class.state
+.   state.comma = last()?? ""? ","
+    $(name)_state = $(index ())$(comma)
+.endfor
+} state_t;
+
+typedef enum {
+    NULL_status = 0,
+.for class.code
+.   code.comma = last()?? ""? ","
+    status_$(status) = $("$(status)")$(comma)
+.endfor
+} status_t;
+
+typedef enum {
+    NULL_event = 0,
+.for class.event
+.   event.comma = last()?? ""? ","
+    $(name)_event = $(index ())$(comma)
+.endfor
+} event_t;
+
+typedef enum {
+    NULL_action = 0,
+.for class.action
+.   action.comma = last()?? ""? ","
+    $(name)_action = $(index ())$(comma)
+.endfor
+} action_t;
+
+//  ---------------------------------------------------------------------------
+//  State machine API
+
+static inline event_t
+  get_event_by_status_code(status_t status) {
+.for class.code
+.    code.elif = first()?? "if"? "} else if"
+    $(code.elif) ( status == status_$(code.status) ) {
+        return $(name)_event;
+.endfor
+    } else {
+        return NULL_event;
+    }
+}
+
+static inline bool
+  check_event(state_t state, event_t event, status_t status) {
+.for class.state
+.    state.elif = first()?? "if"? "} else if"
+    $(state.elif) ( state == $(state.name)_state ) {
+.    for state.event
+.        event.elif = first()?? "if"? "} else if"
+        $(event.elif) ( event == $(event.name)_event && status == status_$(event.status) ) {
+            return true;
+.    endfor 
+        } else {
+            return false;
+        }
+.endfor
+    } else {
+        return false;
+    }
+}
+
+static inline action_t
+  get_action(state_t state, event_t event, status_t status) {
+.for class.state
+.    state.elif = first()?? "if"? "} else if"
+    $(state.elif) ( state == $(state.name)_state ) {
+.    for state.event
+.        event.elif = first()?? "if"? "} else if"
+        $(event.elif) ( event == $(event.name)_event && status == status_$(event.status) ) {
+.        for event.action
+            return $(action.name)_action;
+.        endfor
+.    endfor
+        } else {
+            return NULL_action;
+        }
+.endfor
+    } else {
+        return NULL_action;
+    }
+}
+
+static inline status_t
+  get_heartbeat_status(state_t state, event_t event, status_t received_status) {
+.for class.state
+.    state.elif = first()?? "if"? "} else if"
+    $(state.elif) ( state == $(state.name)_state ) {
+.    for state.event
+.        event.elif = first()?? "if"? "} else if"
+        $(event.elif) ( event == $(event.name)_event && received_status == status_$(event.status) ) {
+.        for event.action
+            return status_$(action.status);
+.        endfor
+.    endfor
+        } else {
+            return NULL_status;
+        }
+.endfor
+    } else {
+        return NULL_status;
+    }
+}
+
+static inline state_t
+  get_new_state(state_t state, event_t event, status_t received_status) {
+.for class.state
+.    state.elif = first()?? "if"? "} else if"
+    $(state.elif) ( state == $(state.name)_state ) {
+.    for state.event
+.        event.elif = first()?? "if"? "} else if"
+        $(event.elif) ( event == $(event.name)_event && received_status == status_$(event.status) ) {
+            return $(event.next)_state;
+.    endfor
+        } else {
+            return NULL_state;
+        }
+.endfor
+    } else {
+        return NULL_state;
+    }
+}
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif  // FLOCK_FSM_H_
+.output "$(outputdir)/$(class.name)_test.h"
+/**
+ * \\file       $(class.name)_test.h - $(class.title:) test cases
+ * \\version    $(class.version)
+ * \\brief      Provides tests for the finite state machine.  
+ * \\author     Alexander Herr
+ * \\date       2016
+ * \\copyright  GNU Public License v3 or higher. 
+ *
+ *  ** WARNING *************************************************************
+ *  THIS SOURCE FILE IS 100% GENERATED. If you edit this file, you will lose
+ *  your changes at the next build cycle. This is great for temporary printf
+ *  statements. DO NOT MAKE ANY CHANGES YOU WISH TO KEEP. The correct places
+ *  for commits are:
+ *
+ *   * The XML model used for this code generation: $(filename), or
+ *   * The code generation script that built this file: $(script)
+ *  ************************************************************************
+ */
+
+#ifndef FLOCK_FSM_TEST_H_
+#define FLOCK_FSM_TEST_H_
+
+#include "$(class.name).h"
+#include <assert.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+//  ---------------------------------------------------------------------------
+//  Testing functions
+
+void static
+  test_get_event_by_status_code() {
+.for class.code
+    assert( get_event_by_status_code(status_$(code.status)) == $(name)_event );
+.endfor
+}
+
+void static
+  test_check_event() {
+.for class.state as s
+.    for class.event as e
+.        for class.code as c
+.            if (count(s.event, event.name = e.name) > 0 )
+.                event_count = count(s.event, event.name = e.name)
+.                cur_count = 0
+.                for s.event as se
+.                    if (se.name = e.name)
+.                        if (se.received_status = c.status)
+    assert(  check_event( $(s.name)_state, $(e.name)_event, status_$(c.status) ) );
+.                        elsif (cur_count+1 = event_count)
+    assert( !check_event( $(s.name)_state, $(e.name)_event, status_$(c.status) ) );
+.                        else
+.                            cur_count = cur_count + 1
+.                        endif
+.                    endif
+.                endfor
+.            else
+    assert( !check_event( $(s.name)_state, $(e.name)_event, status_$(c.status) ) );
+.            endif
+.        endfor
+.    endfor
+.endfor
+}
+
+void static
+  test_get_action() {
+.for class.state as s
+.    for class.event as e
+.        for class.code as c
+.            if (count(s.event, event.name = e.name) > 0 )
+.                event_count = count(s.event, event.name = e.name)
+.                cur_count = 0
+.                for s.event as se
+.                    if (se.name = e.name)
+.                        if (se.received_status = c.status)
+.                            for se.action as sea
+    assert( get_action( $(s.name)_state, $(e.name)_event, status_$(c.status) ) == $(sea.name)_action );
+.                            endfor
+.                        elsif (cur_count+1 = event_count)
+    assert( get_action( $(s.name)_state, $(e.name)_event, status_$(c.status) ) == NULL_action );
+.                        else
+.                            cur_count = cur_count + 1
+.                        endif
+.                    endif
+.                endfor
+.            else
+    assert( get_action( $(s.name)_state, $(e.name)_event, status_$(c.status) ) == NULL_action );
+.            endif
+.        endfor
+.    endfor
+.endfor
+}
+
+void static
+  test_get_heartbeat_status() {
+.for class.state as s
+.    for class.event as e
+.        for class.code as c
+.            if (count(s.event, event.name = e.name) > 0 )
+.                event_count = count(s.event, event.name = e.name)
+.                cur_count = 0
+.                for s.event as se
+.                    if (se.name = e.name)
+.                        if (se.received_status = c.status)
+.                            for se.action as sea
+    assert( get_heartbeat_status( $(s.name)_state, $(e.name)_event, status_$(c.status) ) == status_$(sea.status) );
+.                            endfor
+.                        elsif (cur_count+1 = event_count)
+    assert( get_heartbeat_status( $(s.name)_state, $(e.name)_event, status_$(c.status) ) == NULL_status );
+.                        else
+.                            cur_count = cur_count + 1
+.                        endif
+.                    endif
+.                endfor
+.            else
+    assert( get_heartbeat_status( $(s.name)_state, $(e.name)_event, status_$(c.status) ) == NULL_status );
+.            endif
+.        endfor
+.    endfor
+.endfor
+}
+
+void static
+  test_get_new_state() {
+.for class.state as s
+.    for class.event as e
+.        for class.code as c
+.            if (count(s.event, event.name = e.name) > 0 )
+.                event_count = count(s.event, event.name = e.name)
+.                cur_count = 0
+.                for s.event as se
+.                    if (se.name = e.name)
+.                        if (se.received_status = c.status)
+    assert( get_new_state( $(s.name)_state, $(e.name)_event, status_$(c.status) ) == $(se.next)_state );
+.                        elsif (cur_count+1 = event_count)
+    assert( get_new_state( $(s.name)_state, $(e.name)_event, status_$(c.status) ) == NULL_state );
+.                        else
+.                            cur_count = cur_count + 1
+.                        endif
+.                    endif
+.                endfor
+.            else
+    assert( get_new_state( $(s.name)_state, $(e.name)_event, status_$(c.status) ) == NULL_state );
+.            endif
+.        endfor
+.    endfor
+.endfor
+}
+
+void static
+  test_all() {
+    test_get_event_by_status_code();
+    test_check_event();
+    test_get_action();
+    test_get_heartbeat_status();
+    test_get_new_state();
+}
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif  // FLOCK_FSM_TEST_H_

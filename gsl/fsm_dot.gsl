@@ -1,0 +1,152 @@
+.template 0
+#   fsm_dot.gsl
+#
+#   Generates a dot file for the supplied fsm. 
+#
+#   It is derived from the example script at
+#   https://github.com/imatix/gsl/blob/master/examples/fsm_c.gsl
+#
+#   This Source Code Form is subject to the terms of the Mozilla Public
+#   License, v. 2.0. If a copy of the MPL was not distributed with this
+#   file, You can obtain one at http://mozilla.org/MPL/2.0/.
+#
+class.title ?= "flock"
+
+outputdir = "."
+if defined (switches.arg1)
+    outputdir = "$(switches.arg1)"
+endif
+
+#   Resolve includes
+
+for class.include
+    if defined (include.filename)
+        my.include_file = class.load_file (filename)
+        if defined (my.include_file)
+            move my.include_file after include
+        else
+            echo "E: error loading include file: $(filename): $(xml.error?)"
+        endif
+    else
+        echo "E: required attribute 'filename' not defined"
+    endif
+endfor
+
+#   Lowercase state/event/action names
+
+for class.state
+    state.name = "$(name:c)"
+    state.status = "$(state.current_status%d)"
+    state.comma = last()?? ""? ","
+    for event
+        if name <> "*"
+            event.name = "$(name:c)"
+        endif
+        event.status = "$(event.received_status%d)"
+        if defined (event.next)
+            event.next = "$(next:c)"
+            if count (class.state, next = "$(name:c)") = 0
+                abort "Next state $(next) is not defined"
+            endif
+        endif
+        for action
+            action.name = "$(name:c)"
+            action.status = "$(action.next_status%d)"
+        endfor
+    endfor
+
+    #   Collect all events and actions at class level
+    for event where name <> "*"
+        #   Copy event to class if not yet defined there
+        if count (class.event, name = -1.name) = 0
+            copy event to class
+        endif
+    endfor
+    for event
+        for action where count (class.action, name = -1.name) = 0
+            copy action to class
+        endfor
+    endfor
+    for event where count (class.code, status = -1.status) = 0
+        copy event to class as code
+    endfor
+endfor
+
+#   Process super states
+
+function resolve_inheritance (state)
+    if defined (my.state.inherit)
+        my.state.inherit = "$(my.state.inherit:c)"
+        for class.state as superstate where name = my.state.inherit
+            resolve_inheritance (superstate)
+            for event where count (my.state.event, name = -1.name) = 0
+                copy event to my.state
+            endfor
+        else
+            echo "E: superstate $(inherit) isn't defined"
+        endfor
+    endif
+endfunction
+
+for class.state
+    resolve_inheritance (state)
+endfor
+
+#   Collect prototypes that we need
+for class.action
+    new class.prototype
+        prototype.name = "$(action.name)"
+        prototype.exists = 0
+        prototype.args = "$(class.name)_t *self"
+    endnew
+endfor
+
+.endtemplate
+.output "$(outputdir)/$(class.name).dot"
+/*  =========================================================================
+    $(class.name) - $(class.title:) fsm dot representation
+
+    ** WARNING *************************************************************
+    THIS SOURCE FILE IS 100% GENERATED. If you edit this file, you will lose
+    your changes at the next build cycle. This is great for temporary printf
+    statements. DO NOT MAKE ANY CHANGES YOU WISH TO KEEP. The correct places
+    for commits are:
+
+     * The XML model used for this code generation: $(filename), or
+     * The code generation script that built this file: $(script)
+    ************************************************************************
+.   for class.license
+    $(string.trim (license.):block                                         )
+.   endfor
+    =========================================================================
+*/
+
+digraph FSM {
+    {
+        node [shape=plaintext]
+        s
+    }
+.for class.state
+.  if defined(state.start)
+    s -> $(state.name)
+.  endif
+.  for state.event
+.    if event.next <> state.name & !defined(event.emergency) & event.name <> "interrupt"
+.      if event.name <> "received_heartbeat"
+.        relation = "$(state.name) -> $(event.next) [label=$(event.name)]"
+.      else
+.        relation = "$(state.name) -> $(event.next) [label=heartbeat_$(event.status)]"
+.      endif
+    $(relation)
+.    endif
+.    for event.action
+.        if action.status = 200 | action.status = 210
+    $(state.name):w -> $(state.name):w [label=$(action.status)]
+.        endif
+.    endfor
+.  endfor
+.  if state.name <> "exit"
+    $(state.name):e -> $(state.name):e [label=$(state.status)]
+.  endif
+.endfor
+}

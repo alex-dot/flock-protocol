@@ -1,0 +1,877 @@
+<class name = "flock_fsm" version="1.0.0"
+xmlns="flock-protocol" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="flock-protocol flock_fsm.xsd">
+
+<state name = "ready" inherit = "exit" start = "true" current_status = "100" >
+    <event name = "new local file" next = "announcing new file" received_status = "300" >
+        <action name = "send heartbeat" next_status = "120" />
+    </event>
+    <event name = "new local file with more" next = "announcing new file with more" received_status = "304" >
+        <action name = "send heartbeat" next_status = "124" />
+    </event>
+    <event name = "local file metadata change" next = "announcing file metadata change" received_status = "320" >
+        <action name = "send heartbeat" next_status = "160" />
+    </event>
+    <event name = "local file metadata change with more" next = "announcing file metadata change with more" received_status = "324" >
+        <action name = "send heartbeat" next_status = "164" />
+    </event>
+    <event name = "received heartbeat" next = "ready" received_status = "100" >
+        <action name = "send heartbeat" next_status = "100" />
+    </event>
+    <event name = "received heartbeat" next = "acknowledging new file" received_status = "120" >
+        <action name = "send heartbeat" next_status = "121" />
+    </event>
+    <event name = "received heartbeat" next = "acknowledging new file with more" received_status = "124" >
+        <action name = "send heartbeat" next_status = "125" />
+    </event>
+    <event name = "received heartbeat" next = "acknowledging file metadata change" received_status = "160" >
+        <action name = "send heartbeat" next_status = "161" />
+    </event>
+    <event name = "received heartbeat" next = "acknowledging file metadata change with more" received_status = "164" >
+        <action name = "send heartbeat" next_status = "165" />
+    </event>
+    <event name = "received heartbeat" next = "ready" received_status = "150" >
+        <action name = "send heartbeat" next_status = "100" />
+    </event>
+</state>
+
+<state name = "announcing new file" inherit = "exit" current_status = "120" >
+    <event name = "received heartbeat" next = "announcing new file" received_status = "121" >
+        <action name = "send heartbeat" next_status = "120" />
+    </event>
+    <event name = "all nodes replied" next = "sending new file metadata" received_status = "122" internal = "true" >
+        <action name = "send heartbeat" next_status = "130" />
+    </event>
+
+    <event name = "new local file" next = "announcing new file with more" received_status = "300" >
+        <action name = "send heartbeat" next_status = "124" />
+    </event>
+    <event name = "new local file with more" next = "announcing new file with more" received_status = "304" >
+        <action name = "send heartbeat" next_status = "124" />
+    </event>
+    <event name = "local file metadata change" next = "announcing file metadata change with more" received_status = "320" >
+        <action name = "send heartbeat" next_status = "164" />
+    </event>
+    <event name = "local file metadata change with more" next = "announcing file metadata change with more" received_status = "324" >
+        <action name = "send heartbeat" next_status = "164" />
+    </event>
+</state>
+
+<state name = "announcing new file with more" inherit = "exit" current_status = "124" >
+    <event name = "received heartbeat" next = "announcing new file with more" received_status = "125" >
+        <action name = "send heartbeat" next_status = "124" />
+    </event>
+    <event name = "all nodes replied" next = "sending new file metadata with more" received_status = "126" >
+        <action name = "send heartbeat" next_status = "134" />
+    </event>
+
+    <event name = "new local file" next = "announcing new file with more" received_status = "300" >
+        <action name = "send heartbeat" next_status = "124" />
+    </event>
+    <event name = "new local file with more" next = "announcing new file with more" received_status = "304" >
+        <action name = "send heartbeat" next_status = "124" />
+    </event>
+    <event name = "local file metadata change" next = "announcing file metadata change with more" received_status = "320" >
+        <action name = "send heartbeat" next_status = "164" />
+    </event>
+    <event name = "local file metadata change with more" next = "announcing file metadata change with more" received_status = "324" >
+        <action name = "send heartbeat" next_status = "164" />
+    </event>
+</state>
+
+<state name = "announcing file metadata change" inherit = "exit" current_status = "160" >
+    <event name = "received heartbeat" next = "announcing file metadata change" received_status = "161" >
+        <action name = "send heartbeat" next_status = "160" />
+    </event>
+    <event name = "all nodes replied" next = "sending file metadata change" received_status = "162" internal = "true" >
+        <action name = "send heartbeat" next_status = "170" />
+    </event>
+
+    <event name = "new local file" next = "announcing file metadata change with more" received_status = "300" >
+        <action name = "send heartbeat" next_status = "164" />
+    </event>
+    <event name = "new local file with more" next = "announcing file metadata change with more" received_status = "304" >
+        <action name = "send heartbeat" next_status = "164" />
+    </event>
+    <event name = "local file metadata change" next = "announcing file metadata change with more" received_status = "320" >
+        <action name = "send heartbeat" next_status = "164" />
+    </event>
+    <event name = "local file metadata change with more" next = "announcing file metadata change with more" received_status = "324" >
+        <action name = "send heartbeat" next_status = "164" />
+    </event>
+</state>
+
+<state name = "announcing file metadata change with more" inherit = "exit" current_status = "164" >
+    <event name = "received heartbeat" next = "announcing file metadata change with more" received_status = "165" >
+        <action name = "send heartbeat" next_status = "164" />
+    </event>
+    <event name = "all nodes replied" next = "sending file metadata change with more" received_status = "166" internal = "true" >
+        <action name = "send heartbeat" next_status = "174" />
+    </event>
+
+    <event name = "new local file" next = "announcing file metadata change with more" received_status = "300" >
+        <action name = "send heartbeat" next_status = "164" />
+    </event>
+    <event name = "new local file with more" next = "announcing file metadata change with more" received_status = "304" >
+        <action name = "send heartbeat" next_status = "164" />
+    </event>
+    <event name = "local file metadata change" next = "announcing file metadata change with more" received_status = "320" >
+        <action name = "send heartbeat" next_status = "164" />
+    </event>
+    <event name = "local file metadata change with more" next = "announcing file metadata change with more" received_status = "324" >
+        <action name = "send heartbeat" next_status = "164" />
+    </event>
+</state>
+
+<state name = "sending new file metadata" inherit = "exit" current_status = "130" >
+    <event name = "received heartbeat" next = "sending new file metadata" received_status = "131" >
+        <action name = "send heartbeat" next_status = "130" />
+    </event>
+    <event name = "timing offset elapsed" next = "sending new file" received_status = "132" internal = "true" >
+        <action name = "send heartbeat" next_status = "110" />
+    </event>
+
+    <event name = "new local file" next = "sending new file metadata" received_status = "300" >
+        <action name = "add new file to queue" next_status = "130" />
+    </event>
+    <event name = "new local file with more" next = "sending new file metadata" received_status = "304" >
+        <action name = "add new file to queue" next_status = "130" />
+    </event>
+    <event name = "local file metadata change" next = "sending new file metadata" received_status = "320" >
+        <action name = "add new file to queue" next_status = "130" />
+    </event>
+    <event name = "local file metadata change with more" next = "sending new file metadata" received_status = "324" >
+        <action name = "add new file to queue" next_status = "130" />
+    </event>
+</state>
+
+<state name = "sending new file metadata with more" inherit = "exit" current_status = "134" >
+    <event name = "received heartbeat" next = "sending new file metadata with more" received_status = "135" >
+        <action name = "send heartbeat" next_status = "134" />
+    </event>
+    <event name = "timing offset elapsed" next = "sending new file with more alpha" received_status = "132" internal = "true" >
+        <action name = "send heartbeat" next_status = "114" />
+    </event>
+
+    <event name = "new local file" next = "sending new file metadata with more" received_status = "300" >
+        <action name = "send heartbeat" next_status = "134" />
+    </event>
+    <event name = "new local file with more" next = "sending new file metadata with more" received_status = "304" >
+        <action name = "send heartbeat" next_status = "134" />
+    </event>
+    <event name = "local file metadata change" next = "sending new file metadata with more" received_status = "320" >
+        <action name = "add new file to queue" next_status = "134" />
+    </event>
+    <event name = "local file metadata change with more" next = "sending new file metadata with more" received_status = "324" >
+        <action name = "add new file to queue" next_status = "134" />
+    </event>
+</state>
+
+<state name = "sending file metadata change" inherit = "exit" current_status = "170" >
+    <event name = "received heartbeat" next = "sending file metadata change" received_status = "171" >
+        <action name = "send heartbeat" next_status = "170" />
+    </event>
+    <event name = "received heartbeat" next = "sending file metadata change" received_status = "141" >
+        <action name = "send heartbeat" next_status = "170" />
+    </event>
+    <event name = "all nodes have file" next = "ready" received_status = "172" internal = "true" >
+        <action name = "send heartbeat" next_status = "150" />
+    </event>
+
+    <event name = "new local file" next = "sending file metadata change" received_status = "300" >
+        <action name = "add new file to queue" next_status = "170" />
+    </event>
+    <event name = "new local file with more" next = "sending file metadata change" received_status = "304" >
+        <action name = "add new file to queue" next_status = "170" />
+    </event>
+    <event name = "local file metadata change" next = "sending file metadata change" received_status = "320" >
+        <action name = "add new file to queue" next_status = "170" />
+    </event>
+    <event name = "local file metadata change with more" next = "sending file metadata change" received_status = "324" >
+        <action name = "add new file to queue" next_status = "170" />
+    </event>
+</state>
+
+<state name = "sending file metadata change with more" inherit = "exit" current_status = "174" >
+    <!-- note that the only difference between 170 and 174 is that the sender sends
+         all metadata successively in 174 with a count of how many files there are -->
+    <event name = "received heartbeat" next = "sending file metadata change with more" received_status = "175" >
+        <action name = "send heartbeat" next_status = "174" />
+    </event>
+    <event name = "received heartbeat" next = "sending file metadata change with more" received_status = "141" >
+        <action name = "send heartbeat" next_status = "174" />
+    </event>
+    <event name = "all nodes have all files" next = "ready" received_status = "172" internal = "true" >
+        <action name = "send heartbeat" next_status = "150" />
+    </event>
+    <event name = "all nodes have all metadata changes with more" next = "sending new file metadata" received_status = "177" internal = "true" >
+        <action name = "send heartbeat" next_status = "130" />
+    </event>
+    <event name = "all nodes have all metadata changes with more" next = "sending new file metadata with more" received_status = "178" internal = "true" >
+        <action name = "send heartbeat" next_status = "134" />
+    </event>
+
+    <event name = "new local file" next = "sending file metadata change with more" received_status = "300" >
+        <action name = "send heartbeat" next_status = "174" />
+    </event>
+    <event name = "new local file with more" next = "sending file metadata change with more" received_status = "304" >
+        <action name = "send heartbeat" next_status = "174" />
+    </event>
+    <event name = "local file metadata change" next = "sending file metadata change with more" received_status = "320" >
+        <action name = "send heartbeat" next_status = "174" />
+    </event>
+    <event name = "local file metadata change with more" next = "sending file metadata change with more" received_status = "324" >
+        <action name = "send heartbeat" next_status = "174" />
+    </event>
+</state>
+
+<state name = "sending new file" inherit = "exit" current_status = "110" >
+    <event name = "file send tick" next = "sending new file" received_status = "112" internal = "true" >
+        <action name = "send file data" next_status = "200" />
+    </event>
+
+    <event name = "received heartbeat" next = "sending new file" received_status = "111" >
+        <action name = "send heartbeat" next_status = "110" />
+    </event>
+    <event name = "received heartbeat" next = "sending new file" received_status = "140" >
+        <action name = "send heartbeat" next_status = "110" />
+    </event>
+    <event name = "received fake file data" next = "sending new file" received_status = "210" >
+        <action name = "ignore" next_status = "110" />
+    </event>
+
+    <event name = "all nodes have file" next = "syncing stop" received_status = "142" internal = "true" >
+        <action name = "send heartbeat" next_status = "155" />
+    </event>
+
+    <event name = "new local file" next = "sending new file" received_status = "300" >
+        <action name = "add new file to queue" next_status = "110" />
+    </event>
+    <event name = "new local file with more" next = "sending new file" received_status = "304" >
+        <action name = "add new file to queue" next_status = "110" />
+    </event>
+    <event name = "local file metadata change" next = "sending new file" received_status = "320" >
+        <action name = "add new file to queue" next_status = "110" />
+    </event>
+    <event name = "local file metadata change with more" next = "sending new file" received_status = "324" >
+        <action name = "add new file to queue" next_status = "110" />
+    </event>
+
+    <event name = "received heartbeat" next = "ready" emergency = "true" received_status = "410" >
+        <action name = "send heartbeat" next_status = "410" />
+    </event>
+    <event name = "node only sends heartbeats" next = "ready" emergency = "true" received_status = "100" >
+        <action name = "send heartbeat" next_status = "410" />
+    </event>
+</state>
+
+<state name = "sending new file with more alpha" inherit = "exit" current_status = "114" >
+    <!-- note in this state to send metadata of the next file -->
+    <event name = "file send tick" next = "sending new file with more alpha" received_status = "112" internal = "true" >
+        <action name = "send file data" next_status = "200" />
+    </event>
+
+    <event name = "received heartbeat" next = "sending new file with more alpha" received_status = "115" >
+        <action name = "send heartbeat" next_status = "114" />
+    </event>
+    <event name = "received heartbeat" next = "sending new file with more alpha" received_status = "140" >
+        <action name = "send heartbeat" next_status = "114" />
+    </event>
+    <event name = "received fake file data" next = "sending new file with more alpha" received_status = "210" >
+        <action name = "ignore" next_status = "114" />
+    </event>
+
+    <event name = "all nodes have file" next = "sending new file" received_status = "142" internal = "true" >
+        <action name = "send heartbeat" next_status = "110" />
+    </event>
+    <event name = "all nodes have file with more" next = "sending new file with more beta" received_status = "146" internal = "true" >
+        <action name = "send heartbeat" next_status = "116" />
+    </event>
+
+    <event name = "new local file" next = "sending new file with more alpha" received_status = "300" >
+        <action name = "add new file to queue" next_status = "114" />
+    </event>
+    <event name = "new local file with more" next = "sending new file with more alpha" received_status = "304" >
+        <action name = "add new file to queue" next_status = "114" />
+    </event>
+    <event name = "local file metadata change" next = "sending new file with more alpha" received_status = "320" >
+        <action name = "add new file to queue" next_status = "114" />
+    </event>
+    <event name = "local file metadata change with more" next = "sending new file with more alpha" received_status = "324" >
+        <action name = "add new file to queue" next_status = "114" />
+    </event>
+
+    <event name = "received heartbeat" next = "ready" emergency = "true" received_status = "410" >
+        <action name = "send heartbeat" next_status = "410" />
+    </event>
+    <event name = "node only sends heartbeats" next = "ready" emergency = "true" received_status = "100" >
+        <action name = "send heartbeat" next_status = "410" />
+    </event>
+</state>
+
+<state name = "sending new file with more beta" inherit = "exit" current_status = "116" >
+    <!-- note in this state to send metadata of the next file -->
+    <event name = "file send tick" next = "sending new file with more beta" received_status = "112" internal = "true" >
+        <action name = "send file data" next_status = "200" />
+    </event>
+
+    <event name = "received heartbeat" next = "sending new file with more beta" received_status = "115" >
+        <action name = "send heartbeat" next_status = "116" />
+    </event>
+    <event name = "received heartbeat" next = "sending new file with more beta" received_status = "140" >
+        <action name = "send heartbeat" next_status = "116" />
+    </event>
+    <event name = "received fake file data" next = "sending new file with more beta" received_status = "210" >
+        <action name = "ignore" next_status = "116" />
+    </event>
+
+    <event name = "all nodes have file" next = "sending new file" received_status = "142" internal = "true" >
+        <action name = "send heartbeat" next_status = "110" />
+    </event>
+    <event name = "all nodes have file with more" next = "sending new file with more alpha" received_status = "146" internal = "true" >
+        <action name = "send heartbeat" next_status = "114" />
+    </event>
+
+    <event name = "new local file" next = "sending new file with more beta" received_status = "300" >
+        <action name = "add new file to queue" next_status = "116" />
+    </event>
+    <event name = "new local file with more" next = "sending new file with more beta" received_status = "304" >
+        <action name = "add new file to queue" next_status = "116" />
+    </event>
+    <event name = "local file metadata change" next = "sending new file with more beta" received_status = "320" >
+        <action name = "add new file to queue" next_status = "116" />
+    </event>
+    <event name = "local file metadata change with more" next = "sending new file with more beta" received_status = "324" >
+        <action name = "add new file to queue" next_status = "116" />
+    </event>
+
+    <event name = "received heartbeat" next = "ready" emergency = "true" received_status = "410" >
+        <action name = "send heartbeat" next_status = "410" />
+    </event>
+    <event name = "node only sends heartbeats" next = "ready" emergency = "true" received_status = "100" >
+        <action name = "send heartbeat" next_status = "410" />
+    </event>
+</state>
+
+<state name = "acknowledging new file" inherit = "exit" current_status = "121" >
+    <event name = "received heartbeat" next = "promoting new file metadata" received_status = "130" >
+        <action name = "send heartbeat" next_status = "131" />
+    </event>
+    <event name = "received heartbeat" next = "acknowledging new file" received_status = "120" >
+        <action name = "send heartbeat" next_status = "121" />
+    </event>
+    <event name = "received heartbeat" next = "acknowledging new file" received_status = "121" >
+        <action name = "send heartbeat" next_status = "121" />
+    </event>
+    <event name = "received heartbeat" next = "acknowledging new file with more" received_status = "124" >
+        <action name = "send heartbeat" next_status = "125" />
+    </event>
+
+    <event name = "new local file" next = "acknowledging new file" received_status = "300" >
+        <action name = "add new file to queue" next_status = "121" />
+    </event>
+    <event name = "new local file with more" next = "acknowledging new file" received_status = "304" >
+        <action name = "add new file to queue" next_status = "121" />
+    </event>
+    <event name = "local file metadata change" next = "acknowledging new file" received_status = "320" >
+        <action name = "add new file to queue" next_status = "121" />
+    </event>
+    <event name = "local file metadata change with more" next = "acknowledging new file" received_status = "324" >
+        <action name = "add new file to queue" next_status = "121" />
+    </event>
+</state>
+
+<state name = "acknowledging new file with more" inherit = "exit" current_status = "125" >
+    <event name = "received heartbeat" next = "promoting new file metadata with more" received_status = "134" >
+        <action name = "send heartbeat" next_status = "131" />
+    </event>
+    <event name = "received heartbeat" next = "acknowledging new file with more" received_status = "124" >
+        <action name = "send heartbeat" next_status = "125" />
+    </event>
+    <event name = "received heartbeat" next = "acknowledging new file with more" received_status = "125" >
+        <action name = "send heartbeat" next_status = "125" />
+    </event>
+
+    <event name = "new local file" next = "acknowledging new file with more" received_status = "300" >
+        <action name = "add new file to queue" next_status = "125" />
+    </event>
+    <event name = "new local file with more" next = "acknowledging new file with more" received_status = "304" >
+        <action name = "add new file to queue" next_status = "125" />
+    </event>
+    <event name = "local file metadata change" next = "acknowledging new file with more" received_status = "320" >
+        <action name = "add new file to queue" next_status = "125" />
+    </event>
+    <event name = "local file metadata change with more" next = "acknowledging new file with more" received_status = "324" >
+        <action name = "add new file to queue" next_status = "125" />
+    </event>
+</state>
+
+<state name = "acknowledging file metadata change" inherit = "exit" current_status = "161" >
+    <event name = "received heartbeat" next = "receiving file metadata change" received_status = "170" >
+        <action name = "send heartbeat" next_status = "171" />
+    </event>
+    <event name = "received heartbeat" next = "acknowledging file metadata change" received_status = "160" >
+        <action name = "send heartbeat" next_status = "161" />
+    </event>
+    <event name = "received heartbeat" next = "acknowledging file metadata change" received_status = "161" >
+        <action name = "send heartbeat" next_status = "161" />
+    </event>
+    <event name = "received heartbeat" next = "acknowledging file metadata change with more" received_status = "164" >
+        <action name = "send heartbeat" next_status = "165" />
+    </event>
+
+    <event name = "new local file" next = "acknowledging file metadata change" received_status = "300" >
+        <action name = "add new file to queue" next_status = "161" />
+    </event>
+    <event name = "new local file with more" next = "acknowledging file metadata change" received_status = "304" >
+        <action name = "add new file to queue" next_status = "161" />
+    </event>
+    <event name = "new local file" next = "acknowledging file metadata change" received_status = "320" >
+        <action name = "add new file to queue" next_status = "161" />
+    </event>
+    <event name = "new local file with more" next = "acknowledging file metadata change" received_status = "324" >
+        <action name = "add new file to queue" next_status = "161" />
+    </event>
+</state>
+
+<state name = "acknowledging file metadata change with more" inherit = "exit" current_status = "165" >
+    <event name = "received heartbeat" next = "receiving file metadata change with more" received_status = "174" >
+        <action name = "send heartbeat" next_status = "175" />
+    </event>
+    <event name = "received heartbeat" next = "acknowledging file metadata change with more" received_status = "164" >
+        <action name = "send heartbeat" next_status = "165" />
+    </event>
+    <event name = "received heartbeat" next = "acknowledging file metadata change with more" received_status = "165" >
+        <action name = "send heartbeat" next_status = "165" />
+    </event>
+
+    <event name = "new local file" next = "acknowledging file metadata change with more" received_status = "300" >
+        <action name = "add new file to queue" next_status = "165" />
+    </event>
+    <event name = "new local file with more" next = "acknowledging file metadata change with more" received_status = "304" >
+        <action name = "add new file to queue" next_status = "165" />
+    </event>
+    <event name = "new local file" next = "acknowledging file metadata change with more" received_status = "320" >
+        <action name = "add new file to queue" next_status = "165" />
+    </event>
+    <event name = "new local file with more" next = "acknowledging file metadata change with more" received_status = "324" >
+        <action name = "add new file to queue" next_status = "165" />
+    </event>
+</state>
+
+<state name = "promoting new file metadata" inherit = "exit" current_status = "131" >
+    <event name = "received heartbeat" next = "promoting new file metadata" received_status = "130" >
+        <action name = "send heartbeat" next_status = "131" />
+    </event>
+    <event name = "received heartbeat" next = "promoting new file metadata" received_status = "131" >
+        <action name = "send heartbeat" next_status = "131" />
+    </event>
+    <event name = "received heartbeat" next = "promoting new file metadata with more" received_status = "134" >
+        <action name = "send heartbeat" next_status = "135" />
+    </event>
+    <event name = "timing offset elapsed" next = "sending fake file" received_status = "132" internal = "true" >
+        <action name = "send heartbeat" next_status = "111" />
+    </event>
+
+    <event name = "new local file" next = "promoting new file metadata" received_status = "300" >
+        <action name = "add new file to queue" next_status = "131" />
+    </event>
+    <event name = "new local file with more" next = "promoting new file metadata" received_status = "304" >
+        <action name = "add new file to queue" next_status = "131" />
+    </event>
+    <event name = "new local file" next = "promoting new file metadata" received_status = "320" >
+        <action name = "add new file to queue" next_status = "131" />
+    </event>
+    <event name = "new local file with more" next = "promoting new file metadata" received_status = "324" >
+        <action name = "add new file to queue" next_status = "131" />
+    </event>
+</state>
+
+<state name = "promoting new file metadata with more" inherit = "exit" current_status = "135" >
+    <event name = "received heartbeat" next = "promoting new file metadata with more" received_status = "134" >
+        <action name = "send heartbeat" next_status = "135" />
+    </event>
+    <event name = "received heartbeat" next = "promoting new file metadata with more" received_status = "135" >
+        <action name = "send heartbeat" next_status = "135" />
+    </event>
+    <event name = "timing offset elapsed" next = "sending fake file with more alpha" received_status = "136" >
+        <action name = "send heartbeat" next_status = "115" />
+    </event>
+
+    <event name = "new local file" next = "promoting new file metadata with more" received_status = "300" >
+        <action name = "add new file to queue" next_status = "135" />
+    </event>
+    <event name = "new local file with more" next = "promoting new file metadata with more" received_status = "304" >
+        <action name = "add new file to queue" next_status = "135" />
+    </event>
+    <event name = "new local file" next = "promoting new file metadata with more" received_status = "320" >
+        <action name = "add new file to queue" next_status = "135" />
+    </event>
+    <event name = "new local file with more" next = "promoting new file metadata with more" received_status = "324" >
+        <action name = "add new file to queue" next_status = "135" />
+    </event>
+</state>
+
+<state name = "receiving file metadata change" inherit = "exit" current_status = "171" >
+    <event name = "received heartbeat" next = "receiving file metadata change" received_status = "170" >
+        <action name = "send heartbeat" next_status = "171" />
+    </event>
+    <event name = "received heartbeat" next = "receiving file metadata change" received_status = "171" >
+        <action name = "send heartbeat" next_status = "171" />
+    </event>
+    <event name = "received heartbeat" next = "receiving file metadata change with more" received_status = "175" >
+        <action name = "send heartbeat" next_status = "171" />
+    </event>
+    <event name = "received heartbeat" next = "receiving file metadata change" received_status = "141" >
+        <action name = "send heartbeat" next_status = "171" />
+    </event>
+    <event name = "all metadata received" next = "broadcasting all metadata received" received_status = "173" internal = "true" >
+        <action name = "send heartbeat" next_status = "141" />
+    </event>
+
+    <event name = "new local file" next = "receiving file metadata change" received_status = "300" >
+        <action name = "add new file to queue" next_status = "171" />
+    </event>
+    <event name = "new local file with more" next = "receiving file metadata change" received_status = "304" >
+        <action name = "add new file to queue" next_status = "171" />
+    </event>
+    <event name = "new local file" next = "receiving file metadata change" received_status = "320" >
+        <action name = "add new file to queue" next_status = "171" />
+    </event>
+    <event name = "new local file with more" next = "receiving file metadata change" received_status = "324" >
+        <action name = "add new file to queue" next_status = "171" />
+    </event>
+</state>
+
+<state name = "receiving file metadata change with more" inherit = "exit" current_status = "175" >
+    <!-- note that the only difference between 171 and 175 is that in 175 the sender sends
+         all metadata successively in 174 with a count of how many files there are -->
+    <event name = "received heartbeat" next = "receiving file metadata change with more" received_status = "174" >
+        <action name = "send heartbeat" next_status = "175" />
+    </event>
+    <event name = "received heartbeat" next = "receiving file metadata change with more" received_status = "175" >
+        <action name = "send heartbeat" next_status = "175" />
+    </event>
+    <event name = "received heartbeat" next = "receiving file metadata change with more" received_status = "141" >
+        <action name = "send heartbeat" next_status = "175" />
+    </event>
+    <event name = "all metadata received" next = "broadcasting all metadata received" received_status = "173" internal = "true" >
+        <action name = "send heartbeat" next_status = "141" />
+    </event>
+
+    <event name = "new local file" next = "receiving file metadata change with more" received_status = "300" >
+        <action name = "add new file to queue" next_status = "175" />
+    </event>
+    <event name = "new local file with more" next = "receiving file metadata change with more" received_status = "304" >
+        <action name = "add new file to queue" next_status = "175" />
+    </event>
+    <event name = "new local file" next = "receiving file metadata change with more" received_status = "320" >
+        <action name = "add new file to queue" next_status = "175" />
+    </event>
+    <event name = "new local file with more" next = "receiving file metadata change with more" received_status = "324" >
+        <action name = "add new file to queue" next_status = "175" />
+    </event>
+</state>
+
+<state name = "sending fake file" inherit = "exit" current_status = "111" >
+    <event name = "file send tick" next = "sending fake file" received_status = "112" internal = "true" >
+        <action name = "send file data" next_status = "210" />
+    </event>
+
+    <event name = "received heartbeat" next = "sending fake file" received_status = "110" >
+        <action name = "send heartbeat" next_status = "111" />
+    </event>
+    <event name = "received heartbeat" next = "sending fake file" received_status = "111" >
+        <action name = "send heartbeat" next_status = "111" />
+    </event>
+    <event name = "received heartbeat" next = "sending fake file" received_status = "140" >
+        <action name = "send heartbeat" next_status = "111" />
+    </event>
+    <event name = "received file data" next = "sending fake file" received_status = "200" >
+        <action name = "store file data" next_status = "111" />
+    </event>
+
+    <event name = "all data received" next = "broadcasting all received" received_status = "113" internal = "true" >
+        <action name = "send heartbeat" next_status = "140" />
+    </event>
+
+    <event name = "new local file" next = "sending fake file" received_status = "300" >
+        <action name = "add new file to queue" next_status = "111" />
+    </event>
+    <event name = "new local file with more" next = "sending fake file" received_status = "304" >
+        <action name = "add new file to queue" next_status = "111" />
+    </event>
+    <event name = "new local file" next = "sending fake file" received_status = "320" >
+        <action name = "add new file to queue" next_status = "111" />
+    </event>
+    <event name = "new local file with more" next = "sending fake file" received_status = "324" >
+        <action name = "add new file to queue" next_status = "111" />
+    </event>
+
+    <event name = "received heartbeat" next = "ready" emergency = "true" received_status = "410" >
+        <action name = "send heartbeat" next_status = "410" />
+    </event>
+    <event name = "node only sends heartbeats" next = "ready" emergency = "true" received_status = "100" >
+        <action name = "send heartbeat" next_status = "410" />
+    </event>
+</state>
+
+<state name = "sending fake file with more alpha" inherit = "exit" current_status = "115" >
+    <event name = "file send tick" next = "sending fake file with more alpha" received_status = "112" internal = "true" >
+        <action name = "send file data" next_status = "210" />
+    </event>
+
+    <event name = "received heartbeat" next = "sending fake file with more alpha" received_status = "114" >
+        <action name = "send heartbeat" next_status = "115" />
+    </event>
+    <event name = "received heartbeat" next = "sending fake file with more alpha" received_status = "115" >
+        <action name = "send heartbeat" next_status = "115" />
+    </event>
+    <event name = "received heartbeat" next = "sending fake file with more alpha" received_status = "145" >
+        <action name = "send heartbeat" next_status = "115" />
+    </event>
+    <event name = "received file data" next = "sending fake file with more alpha" received_status = "200" >
+        <action name = "store file data" next_status = "115" />
+    </event>
+
+    <event name = "all data received" next = "broadcasting all received with more alpha" received_status = "113" internal = "true" >
+        <action name = "send heartbeat" next_status = "145" />
+    </event>
+
+    <event name = "new local file" next = "sending fake file with more alpha" received_status = "300" >
+        <action name = "add new file to queue" next_status = "115" />
+    </event>
+    <event name = "new local file with more" next = "sending fake file with more alpha" received_status = "304" >
+        <action name = "add new file to queue" next_status = "115" />
+    </event>
+    <event name = "new local file" next = "sending fake file with more alpha" received_status = "320" >
+        <action name = "add new file to queue" next_status = "115" />
+    </event>
+    <event name = "new local file with more" next = "sending fake file with more alpha" received_status = "324" >
+        <action name = "add new file to queue" next_status = "115" />
+    </event>
+
+    <event name = "received heartbeat" next = "ready" emergency = "true" received_status = "410" >
+        <action name = "send heartbeat" next_status = "410" />
+    </event>
+    <event name = "node only sends heartbeats" next = "ready" emergency = "true" received_status = "100" >
+        <action name = "send heartbeat" next_status = "410" />
+    </event>
+</state>
+
+<state name = "sending fake file with more beta" inherit = "exit" current_status = "117" >
+    <event name = "file send tick" next = "sending fake file with more beta" received_status = "112" internal = "true" >
+        <action name = "send file data" next_status = "210" />
+    </event>
+
+    <event name = "received heartbeat" next = "sending fake file with more beta" received_status = "114" >
+        <action name = "send heartbeat" next_status = "117" />
+    </event>
+    <event name = "received heartbeat" next = "sending fake file with more beta" received_status = "117" >
+        <action name = "send heartbeat" next_status = "117" />
+    </event>
+    <event name = "received heartbeat" next = "sending fake file with more beta" received_status = "145" >
+        <action name = "send heartbeat" next_status = "117" />
+    </event>
+    <event name = "received file data" next = "sending fake file with more beta" received_status = "200" >
+        <action name = "store file data" next_status = "117" />
+    </event>
+
+    <event name = "all data received" next = "broadcasting all received with more beta" received_status = "113" internal = "true" >
+        <action name = "send heartbeat" next_status = "147" />
+    </event>
+
+    <event name = "new local file" next = "sending fake file with more beta" received_status = "300" >
+        <action name = "add new file to queue" next_status = "117" />
+    </event>
+    <event name = "new local file with more" next = "sending fake file with more beta" received_status = "304" >
+        <action name = "add new file to queue" next_status = "117" />
+    </event>
+    <event name = "new local file" next = "sending fake file with more beta" received_status = "320" >
+        <action name = "add new file to queue" next_status = "117" />
+    </event>
+    <event name = "new local file with more" next = "sending fake file with more beta" received_status = "324" >
+        <action name = "add new file to queue" next_status = "117" />
+    </event>
+
+    <event name = "received heartbeat" next = "ready" emergency = "true" received_status = "410" >
+        <action name = "send heartbeat" next_status = "410" />
+    </event>
+    <event name = "node only sends heartbeats" next = "ready" emergency = "true" received_status = "100" >
+        <action name = "send heartbeat" next_status = "410" />
+    </event>
+</state>
+
+<state name = "broadcasting all received" inherit = "exit" current_status = "140" >
+    <event name = "file send tick" next = "broadcasting all received" received_status = "112" internal = "true" >
+        <action name = "send fake file data" next_status = "210" />
+    </event>
+    <event name = "received heartbeat" next = "broadcasting all received" received_status = "110" >
+        <action name = "send heartbeat" next_status = "140" />
+    </event>
+    <event name = "received heartbeat" next = "broadcasting all received" received_status = "111" >
+        <action name = "send heartbeat" next_status = "140" />
+    </event>
+    <event name = "received heartbeat" next = "broadcasting all received" received_status = "140" >
+        <action name = "send heartbeat" next_status = "140" />
+    </event>
+    <event name = "received heartbeat" next = "syncing stop" received_status = "155" >
+        <action name = "send heartbeat" next_status = "155" />
+    </event>
+
+    <event name = "new local file" next = "broadcasting all received" received_status = "300" >
+        <action name = "add new file to queue" next_status = "140" />
+    </event>
+    <event name = "new local file with more" next = "broadcasting all received" received_status = "304" >
+        <action name = "add new file to queue" next_status = "140" />
+    </event>
+    <event name = "new local file" next = "broadcasting all received" received_status = "320" >
+        <action name = "add new file to queue" next_status = "140" />
+    </event>
+    <event name = "new local file with more" next = "broadcasting all received" received_status = "324" >
+        <action name = "add new file to queue" next_status = "140" />
+    </event>
+
+    <event name = "node only sends heartbeats" next = "ready" emergency = "true" received_status = "100" >
+        <action name = "send heartbeat" next_status = "410" />
+    </event>
+</state>
+
+<state name = "broadcasting all received with more alpha" inherit = "exit" current_status = "145" >
+    <event name = "file send tick" next = "broadcasting all received with more alpha" received_status = "112" internal = "true" >
+        <action name = "send fake file data" next_status = "210" />
+    </event>
+    <event name = "received heartbeat" next = "broadcasting all received with more alpha" received_status = "114" >
+        <action name = "send heartbeat" next_status = "145" />
+    </event>
+    <event name = "received heartbeat" next = "broadcasting all received with more alpha" received_status = "115" >
+        <action name = "send heartbeat" next_status = "145" />
+    </event>
+    <event name = "received heartbeat" next = "broadcasting all received with more alpha" received_status = "145" >
+        <action name = "send heartbeat" next_status = "145" />
+    </event>
+    <event name = "received heartbeat" next = "sending fake file" received_status = "150" >
+        <action name = "send heartbeat" next_status = "111" />
+    </event>
+    <event name = "received heartbeat" next = "sending fake file with more beta" received_status = "116" >
+        <action name = "send heartbeat" next_status = "117" />
+    </event>
+
+    <event name = "new local file" next = "broadcasting all received with more alpha" received_status = "300" >
+        <action name = "add new file to queue" next_status = "145" />
+    </event>
+    <event name = "new local file with more" next = "broadcasting all received with more alpha" received_status = "304" >
+        <action name = "add new file to queue" next_status = "145" />
+    </event>
+    <event name = "new local file" next = "broadcasting all received with more alpha" received_status = "320" >
+        <action name = "add new file to queue" next_status = "145" />
+    </event>
+    <event name = "new local file with more" next = "broadcasting all received with more alpha" received_status = "324" >
+        <action name = "add new file to queue" next_status = "145" />
+    </event>
+
+    <event name = "node only sends heartbeats" next = "ready" emergency = "true" received_status = "100" >
+        <action name = "send heartbeat" next_status = "410" />
+    </event>
+</state>
+
+<state name = "broadcasting all received with more beta" inherit = "exit" current_status = "147" >
+    <event name = "file send tick" next = "broadcasting all received with more beta" received_status = "112" internal = "true" >
+        <action name = "send fake file data" next_status = "210" />
+    </event>
+    <event name = "received heartbeat" next = "broadcasting all received with more beta" received_status = "116" >
+        <action name = "send heartbeat" next_status = "147" />
+    </event>
+    <event name = "received heartbeat" next = "broadcasting all received with more beta" received_status = "117" >
+        <action name = "send heartbeat" next_status = "147" />
+    </event>
+    <event name = "received heartbeat" next = "broadcasting all received with more beta" received_status = "147" >
+        <action name = "send heartbeat" next_status = "147" />
+    </event>
+    <event name = "received heartbeat" next = "sending fake file" received_status = "150" >
+        <action name = "send heartbeat" next_status = "111" />
+    </event>
+    <event name = "received heartbeat" next = "sending fake file with more alpha" received_status = "114" >
+        <action name = "send heartbeat" next_status = "115" />
+    </event>
+
+    <event name = "new local file" next = "broadcasting all received with more beta" received_status = "300" >
+        <action name = "add new file to queue" next_status = "147" />
+    </event>
+    <event name = "new local file with more" next = "broadcasting all received with more beta" received_status = "304" >
+        <action name = "add new file to queue" next_status = "147" />
+    </event>
+    <event name = "new local file" next = "broadcasting all received with more beta" received_status = "320" >
+        <action name = "add new file to queue" next_status = "147" />
+    </event>
+    <event name = "new local file with more" next = "broadcasting all received with more beta" received_status = "324" >
+        <action name = "add new file to queue" next_status = "147" />
+    </event>
+
+    <event name = "node only sends heartbeats" next = "ready" emergency = "true" received_status = "100" >
+        <action name = "send heartbeat" next_status = "410" />
+    </event>
+</state>
+
+<state name = "broadcasting all metadata received" inherit = "exit" current_status = "141" >
+    <event name = "received heartbeat" next = "broadcasting all metadata received" received_status = "170" >
+        <action name = "send heartbeat" next_status = "141" />
+    </event>
+    <event name = "received heartbeat" next = "broadcasting all metadata received" received_status = "171" >
+        <action name = "send heartbeat" next_status = "141" />
+    </event>
+    <event name = "received heartbeat" next = "broadcasting all metadata received" received_status = "141" >
+        <action name = "send heartbeat" next_status = "141" />
+    </event>
+
+    <event name = "received heartbeat" next = "promoting new file metadata" received_status = "130" >
+        <action name = "send heartbeat" next_status = "131" />
+    </event>
+    <event name = "received heartbeat" next = "promoting new file metadata with more" received_status = "134" >
+        <action name = "send heartbeat" next_status = "135" />
+    </event>
+
+    <event name = "received heartbeat" next = "ready" received_status = "150" >
+        <action name = "send heartbeat" next_status = "150" />
+    </event>
+
+    <event name = "new local file" next = "broadcasting all metadata received" received_status = "300" >
+        <action name = "add new file to queue" next_status = "141" />
+    </event>
+    <event name = "new local file with more" next = "broadcasting all metadata received" received_status = "304" >
+        <action name = "add new file to queue" next_status = "141" />
+    </event>
+    <event name = "new local file" next = "broadcasting all metadata received" received_status = "320" >
+        <action name = "add new file to queue" next_status = "141" />
+    </event>
+    <event name = "new local file with more" next = "broadcasting all metadata received" received_status = "324" >
+        <action name = "add new file to queue" next_status = "141" />
+    </event>
+
+    <event name = "node only sends heartbeats" next = "ready" emergency = "true" received_status = "100" >
+        <action name = "send heartbeat" next_status = "410" />
+    </event>
+</state>
+
+<state name = "syncing stop" inherit = "exit" current_status = "155" >
+    <event name = "file send tick" next = "syncing stop" received_status = "112" internal = "true" >
+        <action name = "send fake file data" next_status = "210" />
+    </event>
+    <event name = "received heartbeat" next = "syncing stop" received_status = "150" >
+        <action name = "send heartbeat" next_status = "155" />
+    </event>
+    <event name = "received heartbeat" next = "syncing stop" received_status = "155" >
+        <action name = "send heartbeat" next_status = "155" />
+    </event>
+    <event name = "timing offset elapsed" next = "ready" received_status = "156" >
+        <action name = "send heartbeat" next_status = "100" />
+    </event>
+</state>
+
+<state name = "exit" current_status = "500" >
+    <event name = "interrupt" next = "exit" received_status = "500" >
+        <action name = "exit" next_status = "500" />
+    </event>
+</state>
+
+</class>

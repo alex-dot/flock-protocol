@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+targetNamespace="flock-protocol"
+xmlns="flock-protocol"
+elementFormDefault="qualified">
+
+<xs:element name="class" type="class_el"/>
+
+<xs:complexType name="class_el">
+  <xs:sequence>
+    <xs:element name="state" minOccurs="1" maxOccurs="unbounded" type="state_el"/>
+  </xs:sequence>
+  <xs:attribute name="name" type="xs:string"/>
+</xs:complexType>
+
+<xs:complexType name="state_el">
+  <xs:sequence>
+    <xs:element name="event" minOccurs="1" maxOccurs="unbounded" type="event_el"/>
+  </xs:sequence>
+  <xs:attribute name="name" type="xs:string"/>
+  <xs:attribute name="inherit" type="xs:string"/>
+  <xs:attribute name="start" type="xs:string"/>
+  <xs:attribute name="current_status" type="xs:string"/>
+</xs:complexType>
+
+<xs:complexType name="event_el">
+  <xs:sequence>
+    <xs:element name="action" minOccurs="1" maxOccurs="1" type="action_el"/>
+  </xs:sequence>
+  <xs:attribute name="name" type="xs:string"/>
+  <xs:attribute name="next" type="xs:string"/>
+  <xs:attribute name="received_status" type="xs:string"/>
+  <xs:attribute name="internal" type="xs:string"/>
+  <xs:attribute name="emergency" type="xs:string"/>
+</xs:complexType>
+
+<xs:complexType name="action_el">
+  <xs:attribute name="name" type="xs:string"/>
+  <xs:attribute name="next_status" type="xs:string"/>
+</xs:complexType>
+
+</xs:schema>
