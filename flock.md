@@ -58,6 +58,9 @@ After a randomized timing offset, all nodes change into a file transfer state wh
 **file content data**
   : File content data, file data, or content data refers to binary information stored inside a given file. 
 
+**hash**
+  : A hash is a 256 bit long number that can be used to uniquely identify shared information, e.g. a client's base-path of a file, that is sufficiently unique and can be generated on all connected nodes equally. Hashes should be generated using cryptographic hashing algorithms, to limit the impact of collisions. 
+
 ## Requirements
 
 ### Cryptographic Messaging Layer
