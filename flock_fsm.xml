@@ -46,6 +46,9 @@ xsi:schemaLocation="flock-protocol flock_fsm.xsd">
     <event name = "new local file" next = "announcing new file with more" received_status = "300" >
         <action name = "send heartbeat" next_status = "124" />
     </event>
+    <event name = "new local file reported twice" next = "announcing new file" received_status = "301" >
+        <action name = "send heartbeat" next_status = "120" />
+    </event>
     <event name = "new local file with more" next = "announcing new file with more" received_status = "304" >
         <action name = "send heartbeat" next_status = "124" />
     </event>
